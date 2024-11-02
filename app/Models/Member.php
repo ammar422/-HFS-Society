@@ -15,7 +15,8 @@ class Member extends Model
         'left_leg_id',
         'right_leg_id',
         'sales_volume',
-        'rank'
+        'rank',
+        'wallet_balance'
     ];
 
 

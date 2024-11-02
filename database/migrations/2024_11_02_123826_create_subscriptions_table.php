@@ -9,11 +9,12 @@ class CreateSubscriptionsTable extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('package');
+            $table->foreignId('member_id')->constrained()->onDelete('cascade');
+            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->timestamp('subscribed_at');
             $table->timestamps();
         });
+        
     }
 
     public function down()

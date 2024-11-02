@@ -11,11 +11,12 @@ class CreateMembersTable extends Migration
         Schema::create('members', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade'); // Link to users table
-            $table->foreignId('sponsor_id')->nullable()->constrained('members', 'id')->onDelete('set null');  
-            $table->foreignId('left_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');  
-            $table->foreignId('right_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');  
+            $table->foreignId('sponsor_id')->nullable()->constrained('members', 'id')->onDelete('set null');
+            $table->foreignId('left_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');
+            $table->foreignId('right_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');
             $table->integer('sales_volume')->default(0);
             $table->string('rank')->default('undefined');
+            $table->decimal('wallet_balance', 8, 2)->default(0.00);
             $table->timestamps();
         });
     }

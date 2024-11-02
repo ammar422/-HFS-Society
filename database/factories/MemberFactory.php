@@ -14,11 +14,11 @@ class MemberFactory extends Factory
     {
         return [
             'user_id' => 1,
-            'sponsor_id' => 1,
+            'sponsor_id' => null,
             'left_leg_id' => null,
             'right_leg_id' => null,
             'sales_volume' => 0,
-            'rank' => 'super man',
+            'wallet_balance' => 0.00
         ];
     }
 }
