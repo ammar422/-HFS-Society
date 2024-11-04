@@ -7,6 +7,10 @@ use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\Auth\Users\AuthController;
 
+route::any('login', function () {
+    return 'you are unauthorized';
+})->name('login');
+
 
 route::prefix('v1')->group(function () {
 
