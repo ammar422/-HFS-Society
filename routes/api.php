@@ -23,6 +23,10 @@ route::prefix('v1')->group(function () {
         // logout
         route::post('logout', [AuthController::class, 'logout']);
 
+
+        //tank
+        route::get('user-tank', [MLMController::class, 'mtTank']);
+
         // members
         Route::post('place-referral', [MLMController::class, 'placeReferral']);
         route::get('downline-members', [MLMController::class, 'getDownlineMembers']);

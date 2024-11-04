@@ -19,48 +19,6 @@ class SubscriptionController extends Controller
 
 
 
-    // public function store(StoreSubscriptionRequest $request)
-    // {
-
-    //     $user = Auth::user();
-    //     $member = $user->member;
-    //     $userTank = $member->userTank;
-    //     $member_ballance = $member->wallet->balance;
-    //     $package = Package::find($request->package_id);
-    //     $packege_price = $package->price;
-
-
-    //     if ($member_ballance >= $packege_price) {
-    //         if ($member->subscription)
-    //             return $this->failedResponse('You are currently subscribed to a package. Please unsubscribe from the current package first');
-    //         try {
-    //             DB::beginTransaction();
-    //             $subscription = Subscription::create([
-    //                 'member_id' => $member->id,
-    //                 'package_id' => $request->package_id,
-    //                 'subscribed_at' => now(),
-    //             ]);
-    //             if ($userTank)
-    //                 $userTank->delete();
-    //             // $member->update(['current_cv' => $package->cv]);
-    //             $newBalance = $this->updateMemberWallatBallnce($member, $packege_price);
-    //             DB::commit();
-    //             return $this->successResponse(
-    //                 'You have successfully subscribed ,current ballence is ' . $newBalance,
-    //                 'subscription',
-    //                 array_merge($subscription->toArray(), [
-    //                     'member_name' => $member->user->name,
-    //                     'sponsor' => $member->sponsor->user->name,
-    //                     'packege_name' => $package->name
-    //                 ])
-    //             );
-    //         } catch (\Exception $e) {
-    //             DB::rollBack();
-    //             return $this->failedResponse('Your current balance does not allow you to purchase this package');
-    //         }
-    //     }
-    // }
-
 
 
     public function store(StoreSubscriptionRequest $request)

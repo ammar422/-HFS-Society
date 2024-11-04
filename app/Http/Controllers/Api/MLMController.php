@@ -10,6 +10,7 @@ use App\Models\CommissionFactor;
 use App\Models\Member;
 use App\Models\Package;
 use App\Models\User;
+use App\Models\UserTank;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -310,5 +311,15 @@ class MLMController extends Controller
             'direct_commission' => $directCommission,
             'balance' => $member->balance,
         ]);
+    }
+
+    public function mtTank()
+    {
+        $user = auth()->user();
+        $member = $user->member;
+        $tanks = UserTank::where('sponsor_id', $member->id)->paginate(5);
+        if ($tanks)
+            return $this->successResponse('the tank get successfully', 'tank', $tanks);
+        return $this->failedResponse();
     }
 }
