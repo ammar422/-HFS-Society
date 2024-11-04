@@ -23,6 +23,7 @@ route::prefix('v1')->group(function () {
         // logout
         route::post('logout', [AuthController::class, 'logout']);
 
+        route::get('sponsor-data', [AuthController::class, 'sponsorData']);
 
         //tank
         route::get('user-tank', [MLMController::class, 'mtTank']);

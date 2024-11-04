@@ -131,5 +131,16 @@ class AuthController extends Controller
     }
 
 
-    
+    public function sponsorData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'sponsor_id' => ['required', 'exists:members,id'],
+        ]);
+        if ($validator->fails())
+            return $this->failedResponse($validator->errors(), 422);
+
+        $sponser = Member::find($request->sponsor_id);
+        $sponser_name = $sponser->user->name ;
+        return $this->successResponse('sponsor data get successfully', 'sponsor name', $sponser_name);
+    }
 }
