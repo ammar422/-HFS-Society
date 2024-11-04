@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\Auth\Users\AuthController;
 
 route::any('login', function () {
-    return 'you are unauthorized';
+    return response()->json('you are unauthorized', 400);
 })->name('login');
 
 
