@@ -16,14 +16,13 @@ route::prefix('v1')->group(function () {
 
     route::post('login', [AuthController::class, 'login']);
     route::post('register', [AuthController::class, 'register']);
-
+    route::get('sponsor-data', [AuthController::class, 'sponsorData']);
 
 
     route::middleware('auth:sanctum')->group(function () {
         // logout
         route::post('logout', [AuthController::class, 'logout']);
 
-        route::get('sponsor-data', [AuthController::class, 'sponsorData']);
 
         //tank
         route::get('user-tank', [MLMController::class, 'mtTank']);
