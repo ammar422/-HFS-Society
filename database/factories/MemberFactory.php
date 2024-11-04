@@ -17,8 +17,8 @@ class MemberFactory extends Factory
             'sponsor_id' => null,
             'left_leg_id' => null,
             'right_leg_id' => null,
-            'sales_volume' => 0,
-            'wallet_balance' => 0.00
+            'totla_left_volume' => 0,
+            'totla_right_volume' => 0,
         ];
     }
 }

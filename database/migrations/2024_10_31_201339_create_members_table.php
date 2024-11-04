@@ -14,9 +14,11 @@ class CreateMembersTable extends Migration
             $table->foreignId('sponsor_id')->nullable()->constrained('members', 'id')->onDelete('set null');
             $table->foreignId('left_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');
             $table->foreignId('right_leg_id')->nullable()->constrained('members', 'id')->onDelete('set null');
-            $table->integer('sales_volume')->default(0);
+            $table->integer('current_cv')->default(0);
+            $table->integer('totla_left_volume')->default(0);
+            $table->integer('totla_right_volume')->default(0);
             $table->string('rank')->default('undefined');
-            $table->decimal('wallet_balance', 8, 2)->default(0.00);
+            $table->decimal('total_commision', 8, 2)->default(0.00);
             $table->timestamps();
         });
     }

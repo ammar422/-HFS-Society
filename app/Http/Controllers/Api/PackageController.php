@@ -13,4 +13,10 @@ class PackageController extends Controller
         $packages = Package::all();
         return response()->json($packages);
     }
+
+    public function show()
+    {
+        $user = auth()->user();
+        return $packages = $user->member->subscription->package;
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Member extends Model
 {
@@ -14,15 +15,31 @@ class Member extends Model
         'sponsor_id',
         'left_leg_id',
         'right_leg_id',
-        'sales_volume',
+        'current_cv',
+        'totla_left_volume',
+        'totla_right_volume',
         'rank',
-        'wallet_balance'
+        'total_commision'
     ];
+
+    // protected $hidden = ['left_leg', 'right_leg'];
 
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+
+    public function commission(): HasMany
+    {
+        return $this->hasMany(Commission::class, 'sponsor_id', 'id');
+    }
+
+
+    public function commissionReferral(): HasMany
+    {
+        return $this->hasMany(Commission::class, 'referral_id', 'id');
     }
 
 
@@ -43,45 +60,123 @@ class Member extends Model
         return $this->belongsTo(Member::class, 'right_leg_id');
     }
 
-
-
-
-
-    public function calculateRank()
+    /**
+     * Relationship with UserTank model
+     * A Member may be in the UserTank table if they haven't purchased a package.
+     */
+    public function userTank()
     {
-        $downlineVolume = $this->getTotalDownlineVolume();
-        $rank = 'Executive';
+        return $this->hasOne(UserTank::class);
+    }
 
-        if ($downlineVolume >= 100000) {
-            $rank = 'Jade';
-        } elseif ($downlineVolume >= 200000) {
-            $rank = 'Sapphire';
-        } elseif ($downlineVolume >= 300000) {
-            $rank = 'Ruby';
+    /**
+     * Relationship with Wallet model
+     * Each Member has a wallet.
+     */
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    /**
+     * Relationship with Subscription model
+     * A Member may have one active subscription after purchasing a package.
+     */
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class);
+    }
+
+
+    /**
+     * Calculates the count of downline members on the left leg.
+     */
+    public function countLeftDownline()
+    {
+        return $this->countDownline($this->left_leg_id);
+    }
+
+    /**
+     * Calculates the count of downline members on the right leg.
+     */
+    public function countRightDownline()
+    {
+        return $this->countDownline($this->right_leg_id);
+    }
+
+    /**
+     * Recursive function to calculate downline count.
+     */
+    private function countDownline($legId)
+    {
+        if (!$legId) {
+            return 0;
         }
-        // Add additional rank conditions
-
-        $this->update(['rank' => $rank]);
+        $member = self::find($legId);
+        return 1 + $member->countLeftDownline() + $member->countRightDownline();
     }
 
 
 
-    public function getTotalDownlineVolume()
+    /**
+     * Calculates the total network volume for the left leg.
+     */
+    public function calculateLeftVolume()
     {
-        return $this->calculateLegVolume('left') + $this->calculateLegVolume('right');
+        return $this->calculateVolume($this->left_leg_id);
+    }
+
+    /**
+     * Calculates the total network volume for the right leg.
+     */
+    public function calculateRightVolume()
+    {
+        return $this->calculateVolume($this->right_leg_id);
+    }
+
+    /**
+     * Recursive function to calculate network volume for a leg.
+     */
+    private function calculateVolume($legId)
+    {
+        if (!$legId) {
+            return 0;
+        }
+        $member = self::find($legId);
+        $volume = $member->current_cv;
+        return $volume + $member->calculateLeftVolume() + $member->calculateRightVolume();
+    }
+
+    public function subscriptionPrice()
+    {
+        return $this->subscription->package->price;
     }
 
 
 
-    private function calculateLegVolume($leg)
-    {
-        $volume = 0;
-        $legMember = $leg === 'left' ? $this->leftLeg : $this->rightLeg;
 
-        if ($legMember) {
-            $volume += $legMember->sales_volume + $legMember->calculateLegVolume('left') + $legMember->calculateLegVolume('right');
+
+    // Recursive method to fetch all uplines
+    public function getAllUplines()
+    {
+        $uplines = [];
+        $sponsor = $this->sponsor;
+
+        while ($sponsor) {
+            $uplines[] = $sponsor;
+            $sponsor = $sponsor->sponsor;
         }
 
-        return $volume;
+        return $uplines;
     }
+
+    // Method to get the count of all uplines
+    public function getUplineCount()
+    {
+        return count($this->getAllUplines());
+    }
+
+
+
+
 }

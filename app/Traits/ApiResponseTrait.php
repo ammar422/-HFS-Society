@@ -15,7 +15,7 @@ trait ApiResponseTrait
     }
 
 
-    public function failedResponse($message = 'something went wrong', $code = 500)
+    public function failedResponse($message = 'something went wrong', $code = 400)
     {
         return response()->json([
             'status' => false,
