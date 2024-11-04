@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreSubscriptionRequest;
+use App\Http\Requests\StoreWalletTransaction;
+use App\Models\WalletTransaction;
 
 class SubscriptionController extends Controller
 {
@@ -114,7 +116,7 @@ class SubscriptionController extends Controller
                 ])
             );
         } catch (\Exception $e) {
-            DB::rollBack();       
+            DB::rollBack();
             return $this->failedResponse('An error occurred while processing your subscription.');
         }
     }
@@ -126,5 +128,112 @@ class SubscriptionController extends Controller
             'balance' => $wallet->balance - $value
         ]);
         return $wallet->balance;
+    }
+
+    public function myCurrentBalance()
+    {
+        $user = Auth::user();
+        $member = $user->member;
+        $balance = $member->wallet->balance;
+        return response()->json([
+            'status' => true,
+            'message' => 'you current wallet balance is ' . $balance . ' USD'
+        ]);
+    }
+
+    public function withdrawal(StoreWalletTransaction $request)
+    {
+        $user = Auth::user();
+        $wallet = $user->member->wallet;
+        if ($wallet->balance < $request->amount)
+            return $this->failedResponse('Insufficient balance , whice your balance is :: ' . $wallet->balance . " USD");
+
+        $transaction = WalletTransaction::create([
+            'wallet_id' => $wallet->id,
+            'transaction_type' => $request->transaction_type,
+            'amount' => $request->amount
+        ]);
+        // handel notification to the admin to approve or reject the request |
+        if ($transaction)
+            return $this->successResponse('your request has been sent succcessfully', 'transaction', $transaction);
+        return $this->failedResponse();
+    }
+
+    public function myAllTarnsactions()
+    {
+        $user = Auth::user();
+        $tarnsactions = $user->member->wallet->tarnsactions()->paginate(5);
+        if ($tarnsactions)
+            return $this->successResponse('all tarnsactions get successfuly', 'tarnsactions', $tarnsactions);
+        return $this->failedResponse();
+    }
+
+
+
+    public function myAcceptedTransactions()
+    {
+        $user = Auth::user();
+        $wallet_id =  $user->member->wallet->id;
+
+        $tarnsactions = WalletTransaction::where('wallet_id', $wallet_id)->where('status', 'accepted')->paginate(5);
+
+        if ($tarnsactions)
+            return $this->successResponse('All accepted transactions fetched successfully', 'transactions', $tarnsactions);
+
+        return $this->failedResponse();
+    }
+
+    public function myRejectedTransactions()
+    {
+        $user = Auth::user();
+        $wallet_id =  $user->member->wallet->id;
+
+        $tarnsactions = WalletTransaction::where('wallet_id', $wallet_id)->where('status', 'rejected')->paginate(5);
+
+        if ($tarnsactions)
+            return $this->successResponse('All rejected transactions fetched successfully', 'transactions', $tarnsactions);
+
+        return $this->failedResponse();
+    }
+
+
+    public function myPendingTransactions()
+    {
+        $user = Auth::user();
+        $wallet_id =  $user->member->wallet->id;
+
+        $tarnsactions = WalletTransaction::where('wallet_id', $wallet_id)->where('status', 'pending')->paginate(5);
+
+        if ($tarnsactions)
+            return $this->successResponse('All rejected transactions fetched successfully', 'transactions', $tarnsactions);
+
+        return $this->failedResponse();
+    }
+
+
+    public function myWithdrawalTransactions()
+    {
+        $user = Auth::user();
+        $wallet_id =  $user->member->wallet->id;
+
+        $tarnsactions = WalletTransaction::where('wallet_id', $wallet_id)->where('transaction_type', 'withdrawal')->paginate(5);
+
+        if ($tarnsactions)
+            return $this->successResponse('All withdrawal transactions fetched successfully', 'transactions', $tarnsactions);
+
+        return $this->failedResponse();
+    }
+
+    public function myDepositTransactions()
+    {
+        $user = Auth::user();
+        $wallet_id =  $user->member->wallet->id;
+
+        $tarnsactions = WalletTransaction::where('wallet_id', $wallet_id)->where('transaction_type', 'deposit')->paginate(5);
+
+        if ($tarnsactions)
+            return $this->successResponse('All deposit transactions fetched successfully', 'transactions', $tarnsactions);
+
+        return $this->failedResponse();
     }
 }
