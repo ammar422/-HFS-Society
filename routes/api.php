@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\Auth\Users\AuthController;
 use App\Http\Controllers\Api\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Api\Admin\Credits\AdminCreditController;
 use App\Http\Controllers\Api\Admin\Users\AdminUserController;
 use App\Http\Controllers\Api\Auth\Users\ResetPasswordController;
 
@@ -67,6 +68,7 @@ route::prefix('v1')->group(function () {
         route::get('all-withdrawal-tarnsactions', [SubscriptionController::class, 'myWithdrawalTransactions']);
         route::get('all-deposit-tarnsactions', [SubscriptionController::class, 'myDepositTransactions']);
         route::post('withdrawa', [SubscriptionController::class, 'withdrawal']);
+        route::post('charging-credit', [SubscriptionController::class, 'chargingCredit']);
     });
 
 
@@ -98,6 +100,13 @@ route::prefix('v1')->group(function () {
             route::post('user/{id}/edit', [AdminUserController::class, 'editUser']);
             route::post('user/{id}/delete', [AdminUserController::class, 'deleteUser']);
             route::post('user/{id}/activeUser', [AdminUserController::class, 'activeUser']);
+
+
+
+            //credit management
+            route::post('generate-code', [AdminCreditController::class, 'store']);
+            route::post('update-user-credit/{id}', [AdminCreditController::class, 'updateUserCredit']);
+
         });
     });
 });

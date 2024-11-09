@@ -11,7 +11,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreSubscriptionRequest;
 use App\Http\Requests\StoreWalletTransaction;
+use App\Models\CreditCodes;
 use App\Models\WalletTransaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Expr\FuncCall;
 
 class SubscriptionController extends Controller
 {
@@ -193,5 +197,39 @@ class SubscriptionController extends Controller
             return $this->successResponse('All deposit transactions fetched successfully', 'transactions', $tarnsactions);
 
         return $this->failedResponse();
+    }
+
+
+    public function chargingCredit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required', 'numeric', 'exists:credit_codes,code', 'digits:14']
+        ]);
+        if ($validator->fails())
+            return $this->failedResponse($validator->errors(), 422);
+        $code = CreditCodes::where('code', $request->code)->first();
+        $user = auth()->user();
+        $wallet = $user->member->wallet;
+        if ($code->status == 'inactive' && $code->charged_by == $user->id)
+            return $this->failedResponse('This card has been charged to this account before');
+        if ($code->status == 'inactive' && $code->charged_by !== $user->id)
+            return $this->failedResponse('This card has been charged to a different account before');
+        try {
+            if ($code->status == 'active' && $code->charged_by == null) {
+                DB::beginTransaction();
+                $code->update([
+                    'status' => 'inactive',
+                    'charged_by' => $user->id
+                ]);
+                $wallet->update([
+                    'balance' => $wallet->balance + $code->credit
+                ]);
+                DB::commit();
+                return $this->successResponse('The card has been charged and the balance has been successfully added to your wallet', 'user', $user->load('member.wallet'));
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->failedResponse($e);
+        }
     }
 }
