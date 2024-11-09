@@ -43,11 +43,14 @@ class ResetPasswordController extends Controller
     // Handle password reset
     public function reset(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
         ]);
+
+        if ($validator->fails())
+            return $this->failedResponse($validator->errors());
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),

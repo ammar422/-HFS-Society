@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\MLMController;
 use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\Auth\Users\AuthController;
+use App\Http\Controllers\Api\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Api\Admin\Users\AdminUserController;
 use App\Http\Controllers\Api\Auth\Users\ResetPasswordController;
 
 route::any('login', function () {
@@ -34,7 +36,7 @@ route::prefix('v1')->group(function () {
 
 
         // user reset password
-        Route::any('user/password/email', [ResetPasswordController::class, 'sendResetLinkEmail']);
+        Route::post('user/password/email', [ResetPasswordController::class, 'sendResetLinkEmail']);
         Route::post('user/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
 
 
@@ -65,5 +67,37 @@ route::prefix('v1')->group(function () {
         route::get('all-withdrawal-tarnsactions', [SubscriptionController::class, 'myWithdrawalTransactions']);
         route::get('all-deposit-tarnsactions', [SubscriptionController::class, 'myDepositTransactions']);
         route::post('withdrawa', [SubscriptionController::class, 'withdrawal']);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // admin routes
+
+    route::prefix('admin')->group(function () {
+        route::post('login', [AdminAuthController::class, 'login']);
+        route::middleware('auth:admin')->group(function () {
+            //logout
+            route::post('logout', [AdminAuthController::class, 'logout']);
+
+            // Users Management
+            route::get('users', [AdminUserController::class, 'index']);
+            route::get('users-memberships', [AdminUserController::class, 'usersWithMembership']);
+            route::post('user/{id}/edit', [AdminUserController::class, 'editUser']);
+            route::post('user/{id}/delete', [AdminUserController::class, 'deleteUser']);
+            route::post('user/{id}/activeUser', [AdminUserController::class, 'activeUser']);
+        });
     });
 });
