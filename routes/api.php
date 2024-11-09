@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\MLMController;
 use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\Auth\Users\AuthController;
+use App\Http\Controllers\Api\Auth\Users\ResetPasswordController;
 
 route::any('login', function () {
     return response()->json('you are unauthorized', 400);
@@ -22,6 +23,19 @@ route::prefix('v1')->group(function () {
     route::middleware('auth:sanctum')->group(function () {
         // logout
         route::post('logout', [AuthController::class, 'logout']);
+
+
+        // user profile data
+        route::get('user/data', [AuthController::class, 'userProfile']);
+        route::post('user/edit', [AuthController::class, 'editUserProfile']);
+        route::post('user/delete', [AuthController::class, 'deleteMyUser']);
+        route::post('user/active', [AuthController::class, 'activeUser']);
+        route::post('user/inactive', [AuthController::class, 'inactiveUser']);
+
+
+        // user reset password
+        Route::any('user/password/email', [ResetPasswordController::class, 'sendResetLinkEmail']);
+        Route::post('user/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
 
 
         //tank

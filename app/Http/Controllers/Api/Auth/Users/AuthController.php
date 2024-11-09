@@ -8,12 +8,10 @@ use App\Models\Wallet;
 use App\Models\UserTank;
 use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\RegisterMemberRequest;
 
 class AuthController extends Controller
 {
@@ -140,7 +138,85 @@ class AuthController extends Controller
             return $this->failedResponse($validator->errors(), 422);
 
         $sponser = Member::find($request->sponsor_id);
-        $sponser_name = $sponser->user->name ;
+        $sponser_name = $sponser->user->name;
         return $this->successResponse('sponsor data get successfully', 'sponsor name', $sponser_name);
     }
+
+
+    public function userProfile()
+    {
+        $user = (auth()->user());
+        $user->load('member');
+        return response()->json([
+            'status' => true,
+            'message' => 'user data get successfully',
+            'user data' => $user
+        ]);
+    }
+
+    public function editUserProfile(Request $request)
+    {
+        $user = auth()->user();
+        $validator = Validator::make($request->all(), [
+            'name' =>  ['nullable', 'string', 'max:100'],
+            'phone' => ['nullable', 'string', 'unique:users,phone,' . $user->id]
+        ]);
+        if ($validator->fails()) {
+            return $this->failedResponse($validator->errors(), 422);
+        }
+        try {
+            $request->name ? $user->name = $request->name : $user->name;
+            $request->phone ? $user->phone = $request->phone : $user->phone;
+            $user->save();
+            return $this->successResponse('user data updated successfully ', 'user', $user);
+        } catch (\Exception $e) {
+            return $this->failedResponse($e);
+        }
+    }
+
+    public function deleteMyUser()
+    {
+        $user = auth()->user();
+        try {
+            $user->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'user deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failedResponse($e);
+        }
+    }
+
+    public function activeUser()
+    {
+        $user = auth()->user();
+        try {
+            $user->status = 'active';
+            $user->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'user status activated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failedResponse($e);
+        }
+    }
+
+    public function inactiveUser()
+    {
+        $user = auth()->user();
+        try {
+            $user->status = 'inactive';
+            $user->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'user status inactivated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failedResponse($e);
+        }
+    }
+
+    
 }
