@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -218,5 +219,47 @@ class AuthController extends Controller
         }
     }
 
-    
+
+
+
+    public function generateToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'email',
+            'exists:users,email',
+            'password' => 'required',
+            'string',
+        ]);
+        if ($validator->fails()) {
+            return $this->failedResponse($validator->errors(), 422);
+        }
+        $credentials = $request->only('email', 'password');
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $oldToken = $user->tokens();
+            if ($oldToken)
+                $oldToken->delete();
+            $token = $user->createToken('SSO Token')->plainTextToken;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'token generated successfully',
+                'token' => $token,
+            ]);
+        }
+
+        return $this->failedResponse('Invalid credentials', 422);
+    }
+
+
+
+    public function getUser()
+    {
+        return $this->successResponse(
+            'user get succesffuky',
+            'user',
+            auth()->user()
+        );
+    }
 }

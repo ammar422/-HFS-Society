@@ -22,6 +22,11 @@ route::prefix('v1')->group(function () {
     route::post('register', [AuthController::class, 'register']);
     route::get('sponsor-data', [AuthController::class, 'sponsorData']);
 
+    // single sign-On 
+    Route::post('login-token', [AuthController::class, 'generateToken']);
+    
+
+
 
     route::middleware('auth:sanctum')->group(function () {
         // logout
@@ -34,6 +39,9 @@ route::prefix('v1')->group(function () {
         route::post('user/delete', [AuthController::class, 'deleteMyUser']);
         route::post('user/active', [AuthController::class, 'activeUser']);
         route::post('user/inactive', [AuthController::class, 'inactiveUser']);
+
+        // single sign-On 
+        Route::get('get-login-user', [AuthController::class, 'getUser']);
 
 
         // user reset password
@@ -106,7 +114,6 @@ route::prefix('v1')->group(function () {
             //credit management
             route::post('generate-code', [AdminCreditController::class, 'store']);
             route::post('update-user-credit/{id}', [AdminCreditController::class, 'updateUserCredit']);
-
         });
     });
 });
